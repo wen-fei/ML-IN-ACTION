@@ -72,3 +72,6 @@ sorted函数也可以进行多级排序，例如要根据第二个域和第三�
 
 （4）reverse参数就不用多说了，是一个bool变量，表示升序还是降序排列，默认为false（升序排列），定义为True时将按降序排列。
 #### 4. numpy.shape
+得到矩阵或数组的纬度
+#### 5. matplotlib官方文档地址
+[http://matplotlib.org/2.0.2/api/_as_gen/](matplotlib)

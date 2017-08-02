@@ -51,3 +51,54 @@ def file2matrix(filename):
         classLabelVector.append(int(listFromLine[-1]))
         index += 1
     return returnMat, classLabelVector
+
+
+def autoNorm(dataSet):
+    """特征值归一化"""
+    minVals = dataSet.min(0)    # 按列计算，从列中选取最小值
+    maxVals = dataSet.max(0)
+    ranges = maxVals - minVals
+    normDataSet = zeros(shape(dataSet))
+    m = dataSet.shape[0]
+    # 当前值减去最小值
+    normDataSet = dataSet - tile(minVals, (m, 1))
+    # 除以范围值，tile可以扩展矩阵
+    normDataSet = normDataSet / tile(ranges, (m, 1))
+    return normDataSet, ranges, minVals
+
+
+def datingClassTest():
+    """测试分类器准确率"""
+    # hoRatio = 0.10  # 90%用于训练，10%用于测试
+    hoRatio = 0.30
+    datingDataMat, datingLabels = file2matrix('datingTestSet2.txt')
+    normMat, ranges, minVlas = autoNorm(datingDataMat)
+    m = normMat.shape[0]
+    numTestVecs = int(m * hoRatio)
+    errorCount = 0.0
+    for i in range(numTestVecs):
+        classifierResult = classify0(
+            normMat[i, :], normMat[numTestVecs:m, :],
+            datingLabels[numTestVecs:m], 3)
+        print "the classifier came back with: %d, the real answer is: %d"\
+            % (classifierResult, datingLabels[i])
+        if(classifierResult != datingLabels[i]):
+            errorCount += 1.0
+    print "the total error rate is: %f " % (errorCount / float(numTestVecs))
+
+
+def classifyPerson():
+    """约会网站预测函数"""
+    resultList = ['not at all', 'in small doses', 'in large doses']
+    percentTats = float(raw_input(
+        "percentage of time spent playing video games?"
+    ))
+    ffMiles = float(raw_input("frequent flier miles earned  per year?"))
+    iceCream = float(raw_input("liters of ice cream consumed per year?"))
+    datingDataMat, datingLabels = file2matrix('datingTestSet2.txt')
+    normMat, ranges, minVals = autoNorm(datingDataMat)
+    inArr = array([ffMiles, percentTats, iceCream])
+    classifierResult = classify0((
+        inArr - minVals) / ranges, normMat, datingLabels, 3)
+    print "You will probably like this person: ", \
+        resultList[classifierResult - 1]
