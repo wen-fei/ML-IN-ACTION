@@ -2,6 +2,7 @@
 from math import log
 import operator
 
+
 # 创建数据集
 def createDataSet():
     dataSet = [
@@ -54,7 +55,7 @@ def chooseBestFeatureToSplit(dataSet):
     # 计算数据集的总特征
     numFeatures = len(dataSet[0]) - 1
     # 得到香农熵
-    baseEntropy = calsShannonEnt(dataSet)
+    baseEntropy = calcShannonEnt(dataSet)
     bestInfoGain = 0.0
     bestFeature = -1
     for i in range(numFeatures):
@@ -76,7 +77,7 @@ def chooseBestFeatureToSplit(dataSet):
         if(infoGain > bestInfoGain):
             bestInfoGain = infoGain
             bestFeature = i
-        print infoGain
+        # print infoGain
     return bestFeature
 
 
@@ -95,3 +96,59 @@ def majorityCnt(classList):
         reverse=True)
     # 返回出现次数最多的分类名称
     return sortedClassCount[0][0]
+
+
+# 创建树的代码
+# 参数： 数据集和标签列表
+def createTree(dataSet, labels):
+    # 数据集的所有类标签
+    classList = [example[-1] for example in dataSet]
+    # 递归入口函数，类标签完全相同则停止划分
+    if classList.count(classList[0]) == len(classList):
+        return classList[0]
+    # 遍历所有特征返回出现次数最多的
+    # 第二个停止条件：使用完了所有特征
+    if len(dataSet[0]) == 1:
+        return majorityCnt(classList)
+    bestFeat = chooseBestFeatureToSplit(dataSet)
+    bestFeatLabel = labels[bestFeat]
+    # 得到列表包含的所有属性值
+    myTree = {bestFeatLabel: {}}
+    del(labels[bestFeat])
+    featValues = [example[bestFeat] for example in dataSet]
+    uniqueVals = set(featValues)
+    for value in uniqueVals:
+        # 复制类标签，防止改变原始列表的内容
+        subLabels = labels[:]
+        myTree[bestFeatLabel][value] = createTree(
+            splitDataSet(dataSet, bestFeat, value), subLabels)
+    return myTree
+
+
+# 决策树分类函数
+def classify(inputTree, featLabels, testVec):
+    firstStr = inputTree.keys()[0]
+    secondDict = inputTree[firstStr]
+    # 将标签字符串转换为索引
+    featIndex = featLabels.index(firstStr)
+    for key in secondDict.keys():
+        if testVec[featIndex] == key:
+            if type(secondDict[key]).__name__=='dict':
+                classLabels = classify(secondDict[key], featLabels, testVec)
+            else:
+                classLabels = secondDict[key]
+    return classLabels
+
+
+# 序列化决策树
+def storeTree(inputTree, filename):
+    import pickle
+    fw = open(filename, 'w')
+    pickle.dump(inputTree, fw)
+    fw.close()
+
+
+def grabTree(filename):
+    import pickle
+    fr = open(filename)
+    return pickle.load(fr)
