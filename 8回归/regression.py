@@ -104,10 +104,10 @@ def ridgeTest(xArr, yArr):
     return wMat
 
 
-def regularize(xMat):#regularize by columns
+def regularize(xMat):# regularize by columns
     inMat = xMat.copy()
-    inMeans = np.mean(inMat, 0)   #calc mean then subtract it off
-    inVar = np.var(inMat, 0)      #calc variance of Xi then divide by it
+    inMeans = np.mean(inMat, 0)   # calc mean then subtract it off
+    inVar = np.var(inMat, 0)      # calc variance of Xi then divide by it
     inMat = (inMat - inMeans) / inVar
     return inMat
 
@@ -122,7 +122,7 @@ def stageWise(xArr, yArr, eps=0.01, numIt = 100):
     xMat = regularize(xMat)
     m, n = np.shape(xMat)
     returnMat = np.zeros((numIt, n))
-    ws = np.zeros((n,1))
+    ws = np.zeros((n, 1))
     wsTest = ws.copy()
     wsMax = ws.copy()
     for i in range(numIt):
@@ -138,7 +138,7 @@ def stageWise(xArr, yArr, eps=0.01, numIt = 100):
                     lowestError = rssE
                     wsMax = wsTest
         ws = wsMax.copy()
-        returnMat[i,:] = ws.T
+        returnMat[i, :] = ws.T
     return returnMat
 
 
